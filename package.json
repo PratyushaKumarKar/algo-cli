@@ -1,0 +1,22 @@
+{
+  "name": "algo-cli",
+  "version": "1.0.0",
+  "description": "CLI tool to generate testcases for a leetcode problem",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm i nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PratyushaKumarKar/algo-cli.git"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "author": "kaishuro",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PratyushaKumarKar/algo-cli/issues"
+  },
+  "homepage": "https://github.com/PratyushaKumarKar/algo-cli#readme"
+}
