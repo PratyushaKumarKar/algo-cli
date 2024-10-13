@@ -15,15 +15,27 @@
   ],
   "author": "kaishuro",
   "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.5",
+    "puppeteer": "^5.3.1"
+  },
   "bugs": {
     "url": "https://github.com/PratyushaKumarKar/algo-cli/issues"
   },
   "homepage": "https://github.com/PratyushaKumarKar/algo-cli#readme",
   "dependencies": {
     "axios": "^1.7.7",
+    "chalk": "^4.1.2",
+    "chalk-animation": "^1.6.0",
     "cheerio": "^1.0.0",
+    "child_process": "^1.0.2",
     "dotenv": "^16.4.5",
+    "figlet": "^1.5.2",
     "fs": "^0.0.1-security",
-    "inquirer": "8.2.0"
+    "fs-extra": "^11.2.0",
+    "gradient-string": "^2.0.0",
+    "inquirer": "^8.2.0",
+    "nanospinner": "^1.0.0",
+    "util": "^0.12.5"
   }
 }
