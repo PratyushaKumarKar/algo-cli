@@ -6,6 +6,47 @@ function extractSlugFromUrl(url) {
   return urlParts[urlParts.length - 2]; // The second-to-last part of the URL is the slug
 }
 
+// Function to clean and extract the full description from the content
+function extractFullDescription(content) {
+  return content
+    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/&nbsp;/g, ' ')  // Replace HTML space encoding
+    .replace(/\s+/g, ' ')     // Normalize multiple spaces
+    .trim();                  // Trim any leading or trailing spaces
+}
+
+// Improved function to extract examples
+function extractExamples(content) {
+  // Match all examples based on "Example" keyword and extract both input/output
+  const exampleMatches = content.match(/<pre><code>(.*?)<\/code><\/pre>/gs);
+  let examples = [];
+
+  if (exampleMatches) {
+    examples = exampleMatches.map((example) => 
+      example.replace(/<[^>]*>/g, '').trim() // Remove HTML tags and clean up
+    );
+  }
+
+  return examples;
+}
+
+// Function to extract data and convert it into a structured JSON format
+function extractData(problemData) {
+  const description = extractFullDescription(problemData.content);
+
+  // Extract examples using the improved method
+  const examples = extractExamples(problemData.content);
+
+  // Structuring the JSON object (removed constraints)
+  const jsonData = {
+    title: problemData.title,
+    description: description,  // Full description, including constraints within
+  };
+
+  return jsonData;
+}
+
+// Function to fetch problem details from LeetCode and output structured JSON
 async function getLeetCodeProblemDetails(url) {
   // Extract the slug from the provided URL
   const slug = extractSlugFromUrl(url);
@@ -38,9 +79,11 @@ async function getLeetCodeProblemDetails(url) {
 
     const problemData = response.data.data.question;
 
-    console.log('Title:', problemData.title);
-    console.log('Description:', problemData.content);
-    console.log('Example Testcases:', problemData.exampleTestcases);
+    // Extract the data and convert to JSON
+    const jsonData = extractData(problemData);
+
+    // Log or return the structured JSON data
+    console.log(JSON.stringify(jsonData, null, 2));
 
   } catch (error) {
     console.error('Error fetching problem details:', error.message);
@@ -48,4 +91,4 @@ async function getLeetCodeProblemDetails(url) {
 }
 
 // Example usage with a full URL
-getLeetCodeProblemDetails('https://leetcode.com/problems/two-sum/');
+getLeetCodeProblemDetails('https://leetcode.com/problems/house-robber/');
