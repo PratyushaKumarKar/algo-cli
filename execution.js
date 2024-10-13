@@ -9,7 +9,7 @@ async function runTestCases(problemSlug) {
   const filePath = path.join(dirPath, 'index.js');
 
   try {
-    // Check if the directory and file exist
+
     if (!await fs.pathExists(dirPath) || !await fs.pathExists(filePath)) {
       console.error(`Directory or file for problem '${problemSlug}' not found.`);
       return;
@@ -22,7 +22,6 @@ async function runTestCases(problemSlug) {
       console.error(`Error executing the script: ${stderr}`);
     } else {
       console.log(`Test cases generated successfully.`);
-      // Save the output to a separate file
       const testcasesPath = path.join(dirPath, 'testcases.json');
       await fs.outputFile(testcasesPath, stdout);
       console.log(`Test cases saved to ${testcasesPath}`);
@@ -31,13 +30,5 @@ async function runTestCases(problemSlug) {
     console.error('Error executing script or saving test cases:', err);
   }
 }
-
-// Check if a problem slug is provided as a command line argument
-// const problemSlug = process.argv[2];
-// if (!problemSlug) {
-//   console.error('Please provide a problem slug as a command line argument.');
-//   process.exit(1);
-// }
-
 
 module.exports = runTestCases;

@@ -4,7 +4,8 @@
   "description": "CLI tool to generate testcases for a leetcode problem",
   "main": "index.js",
   "scripts": {
-    "test": "npm i nodemon"
+    "test": "npm i nodemon",
+    "dev" : "nodemon index.js"
   },
   "repository": {
     "type": "git",
