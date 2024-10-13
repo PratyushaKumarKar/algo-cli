@@ -6,12 +6,12 @@ require('dotenv').config(); // Load environment variables
 // Function to send JSON to OpenRouter API and receive the JavaScript file
 async function generateTestCases(problemJson, slug) {
   const preprompt = `
-  You are given a JSON object describing a LeetCode problem. Generate a JavaScript file that creates 1000 test cases for the problem. Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution). Store the test cases in an array called testCases. Ensure the inputs cover a wide range within the problem’s constraints. Log the testCases array in the format:
-  [{ input: ..., output: ... }, { input: ..., output: ... }, ...] Don't Explain or write anything other than the Code in your response.
+  You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Log the testCases array in the format:
+  [{input: ...,output:... },{input: ...,output:... },...] Don't Explain or write anything other than the Code in your response.
   `;
 
   const requestBody = {
-    model: "meta-llama/llama-3.1-8b-instruct", // change to the one you want
+    model: "openai/gpt-4o-mini", // change to the one you want
     messages: [
       {
         role: 'user',
