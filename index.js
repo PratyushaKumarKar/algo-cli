@@ -1,94 +1,81 @@
-const axios = require('axios');
+const fs = require('fs');
+const inquirer = require('inquirer');
+require('dotenv').config(); // Load environment variables
+const { getLeetCodeProblemDetails } = require('./scrapeLeetcode');
+const { generateTestCases } = require('./generateTestCases');
+const path = require('path');
 
-// Function to extract the slug from the URL
-function extractSlugFromUrl(url) {
-  const urlParts = url.split('/');
-  return urlParts[urlParts.length - 2]; // The second-to-last part of the URL is the slug
-}
+// Function to check if .env exists and contains the API key
+function checkOrCreateEnv() {
+  const envPath = path.join(__dirname, '.env');
 
-// Function to clean and extract the full description from the content
-function extractFullDescription(content) {
-  return content
-    .replace(/<[^>]*>/g, '') // Remove all HTML tags
-    .replace(/&nbsp;/g, ' ')  // Replace HTML space encoding
-    .replace(/\s+/g, ' ')     // Normalize multiple spaces
-    .trim();                  // Trim any leading or trailing spaces
-}
-
-// Improved function to extract examples
-function extractExamples(content) {
-  // Match all examples based on "Example" keyword and extract both input/output
-  const exampleMatches = content.match(/<pre><code>(.*?)<\/code><\/pre>/gs);
-  let examples = [];
-
-  if (exampleMatches) {
-    examples = exampleMatches.map((example) => 
-      example.replace(/<[^>]*>/g, '').trim() // Remove HTML tags and clean up
-    );
+  // Check if .env file exists
+  if (!fs.existsSync(envPath)) {
+    // Create a new .env file if it doesn't exist
+    fs.writeFileSync(envPath, '');
   }
 
-  return examples;
+  // Load the .env file and check if the API key is already stored
+  require('dotenv').config();
+
+  if (!process.env.OPENROUTER_API_KEY) {
+    return false; // API key not found in .env
+  }
+
+  return true; // API key exists
 }
 
-// Function to extract data and convert it into a structured JSON format
-function extractData(problemData) {
-  const description = extractFullDescription(problemData.content);
-
-  // Extract examples using the improved method
-  const examples = extractExamples(problemData.content);
-
-  // Structuring the JSON object (removed constraints)
-  const jsonData = {
-    title: problemData.title,
-    description: description,  // Full description, including constraints within
-  };
-
-  return jsonData;
+// Function to update the .env file with the API key
+function storeAPIKeyInEnv(apiKey) {
+  const envPath = path.join(__dirname, '.env');
+  const envContent = `OPENROUTER_API_KEY=${apiKey}\n`;
+  fs.appendFileSync(envPath, envContent);
+  console.log('API key has been saved in .env file.');
 }
 
-// Function to fetch problem details from LeetCode and output structured JSON
-async function getLeetCodeProblemDetails(url) {
-  // Extract the slug from the provided URL
-  const slug = extractSlugFromUrl(url);
+// Main CLI logic
+async function main() {
+  // Check if the API key exists in .env, if not, ask the user to input it
+  const apiKeyExists = checkOrCreateEnv();
 
-  const query = `
-    query getQuestionDetail($titleSlug: String!) {
-      question(titleSlug: $titleSlug) {
-        title
-        content
-        exampleTestcases
-      }
-    }
-  `;
+  if (!apiKeyExists) {
+    const { apiKey } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'apiKey',
+        message: 'Enter your OPENROUTER_API_KEY:',
+        validate: (input) => input.trim() !== '' || 'API key cannot be empty!',
+      },
+    ]);
 
-  const variables = {
-    titleSlug: slug,
-  };
+    storeAPIKeyInEnv(apiKey);
 
-  try {
-    const response = await axios.post('https://leetcode.com/graphql', {
-      query: query,
-      variables: variables
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Referer': `https://leetcode.com/problems/${slug}/`,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
-      }
-    });
+    // Reload the environment variables after updating .env
+    require('dotenv').config();
+  }
 
-    const problemData = response.data.data.question;
+  // Now ask the user for the LeetCode problem URL
+  const { leetCodeUrl } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'leetCodeUrl',
+      message: 'Enter the LeetCode problem URL:',
+      validate: (input) =>
+        /^https:\/\/leetcode.com\/problems\/[a-zA-Z0-9-]+\//.test(input) ||
+        'Please enter a valid LeetCode problem URL!',
+    },
+  ]);
 
-    // Extract the data and convert to JSON
-    const jsonData = extractData(problemData);
-
-    // Log or return the structured JSON data
-    console.log(JSON.stringify(jsonData, null, 2));
-
-  } catch (error) {
-    console.error('Error fetching problem details:', error.message);
+  // Fetch problem details and generate test cases
+  const problemData = await getLeetCodeProblemDetails(leetCodeUrl);
+  if (problemData) {
+    const slug = problemData.title.toLowerCase().replace(/\s+/g, '-');
+    await generateTestCases(problemData, slug);
+    console.log('Test cases generated and saved successfully.');
+  } else {
+    console.log('Failed to fetch LeetCode problem data. Please try again.');
   }
 }
 
-// Example usage with a full URL
-getLeetCodeProblemDetails('https://leetcode.com/problems/house-robber/');
+// Run the CLI
+main();
