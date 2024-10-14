@@ -1,28 +1,29 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); 
 const { getLeetCodeProblemDetails } = require('./scrapeLeetcode');
 const { generateTestCases } = require('./generateTestCases');
 const path = require('path');
+const { executeJSFile } = require('./execute');
+const { splitJsonToInputOutput } = require('./splitJson'); 
 
-// Function to check if .env exists and contains the API key
+
 function checkOrCreateEnv() {
   const envPath = path.join(__dirname, '.env');
 
   // Check if .env file exists
   if (!fs.existsSync(envPath)) {
-    // Create a new .env file if it doesn't exist
+
     fs.writeFileSync(envPath, '');
   }
 
-  // Load the .env file and check if the API key is already stored
   require('dotenv').config();
 
   if (!process.env.OPENROUTER_API_KEY) {
-    return false; // API key not found in .env
+    return false; 
   }
 
-  return true; // API key exists
+  return true; 
 }
 
 // Function to update the .env file with the API key
@@ -35,7 +36,7 @@ function storeAPIKeyInEnv(apiKey) {
 
 // Main CLI logic
 async function main() {
-  // Check if the API key exists in .env, if not, ask the user to input it
+  
   const apiKeyExists = checkOrCreateEnv();
 
   if (!apiKeyExists) {
@@ -50,11 +51,11 @@ async function main() {
 
     storeAPIKeyInEnv(apiKey);
 
-    // Reload the environment variables after updating .env
+    
     require('dotenv').config();
   }
 
-  // Now ask the user for the LeetCode problem URL
+  //ask the user for the LeetCode problem URL
   const { leetCodeUrl } = await inquirer.prompt([
     {
       type: 'input',
@@ -70,12 +71,24 @@ async function main() {
   const problemData = await getLeetCodeProblemDetails(leetCodeUrl);
   if (problemData) {
     const slug = problemData.title.toLowerCase().replace(/\s+/g, '-');
+    
     await generateTestCases(problemData, slug);
-    console.log('Test cases generated and saved successfully.');
+    console.log('Created JS file successfully.');
+
+    const filePath = path.join(__dirname, 'problems', `${slug}`, `${slug}.js`); 
+    const jsonFilePath = await executeJSFile(filePath); 
+    console.log('Created JSON successfully.');
+
+    if (fs.existsSync(jsonFilePath)) {
+      splitJsonToInputOutput(jsonFilePath); 
+      console.log('Split JSON into input/output successfully.');
+    } else {
+      console.log('JSON file not found after executing the JavaScript file.');
+    }
+
   } else {
     console.log('Failed to fetch LeetCode problem data. Please try again.');
   }
 }
 
-// Run the CLI
 main();
