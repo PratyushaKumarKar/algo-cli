@@ -1,4 +1,5 @@
 This app is a cli tool in JS to generate testcases for Leetcode problems.
+Use mac branch if you are using a mac system.
 ```
 git clone https://github.com/PratyushaKumarKar/algo-cli.git
 ```
