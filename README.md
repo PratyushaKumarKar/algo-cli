@@ -9,3 +9,8 @@ cd algo-cli
 npm install
 npm run dev
 ```
+Enter OPENROUTER API KEY from [OPENROUTER](https://openrouter.ai/)
+Then , Enter Problems from leetcode : Sample problems here.
+
+https://leetcode.com/problems/reverse-integer/description/
+https://leetcode.com/problems/zigzag-conversion/description/
