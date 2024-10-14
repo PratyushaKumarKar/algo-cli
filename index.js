@@ -152,9 +152,8 @@ async function getLeetCodeProblemDetails() {
 async function fsFunc(jsonData, slug) {
   try {
     const preprompt = `
-    You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Log the testCases array in the format:
-    {{input: ...,output:... },{input: ...,output:... },...} Don't Explain or write anything other than the Code in your response.And remove backticks because the code is directly getting placed in js file so make sure there's nothing other than the code
-    `;
+    You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Return the testCases array as a JSON in the format:
+    {{input: ...,output:... },{input: ...,output:... },...} Don't Explain or write anything other than the Code in your response.And remove backticks because the code is directly getting placed in js file so make sure there's nothing other than the code`;
 
     const requestBody = {
       model: "openai/gpt-4o-mini",
