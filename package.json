@@ -17,8 +17,7 @@
   "author": "kaishuro",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^2.0.5",
-    "puppeteer": "^5.3.1"
+    "nodemon": "^2.0.5"
   },
   "bugs": {
     "url": "https://github.com/PratyushaKumarKar/algo-cli/issues"

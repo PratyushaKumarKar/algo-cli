@@ -31,4 +31,4 @@ async function runTestCases(problemSlug) {
   }
 }
 
-module.exports = runTestCases;
+module.exports = { runTestCases }

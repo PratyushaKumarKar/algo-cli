@@ -6,8 +6,10 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const chalkAnimation = require('chalk-animation');
 const fss = require('fs-extra');
-const runTestCases = require('.');
+const { runTestCases } = require('./execution');
+// const runTestCases = require('')
 require('dotenv').config();
+
 
 function extractSlugFromUrl(url) {
   if (!url) {
