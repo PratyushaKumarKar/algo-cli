@@ -4,7 +4,6 @@ const { exec } = require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
 
-// runTestCases("count-primes");
 
 async function runTestCases(problemSlug) {
 

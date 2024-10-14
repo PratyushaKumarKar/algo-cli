@@ -66,26 +66,21 @@ async function getLeetCodeProblemDetails() {
   }
 
 
-  const res = await inquirer.prompt({
-    name: 'problemURL',
-    type: 'input',
-    message: chalkAnimation.rainbow('Please enter the problem URL'),
-    default() {
-      return 'No url provided';
+  const { leetCodeUrl } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'leetCodeUrl',
+      message:'Enter the LeetCode problem URL:',
+      validate: (input) =>
+        /^https:\/\/leetcode.com\/problems\/[a-zA-Z0-9-]+\//.test(input) ||
+        'Please enter a valid LeetCode problem URL!',
     },
-  });
-
-  const URL = res.problemURL;
-
-  if (!URL || !URL.includes('leetcode.com/problems/')) {
-    console.error(chalk.red('Invalid URL. Please provide a valid LeetCode problem URL.'));
-    return;
-  }
+  ]);
 
   let slug;
 
   try {
-    slug = extractSlugFromUrl(URL);
+    slug = extractSlugFromUrl(leetCodeUrl);
   } catch (error) {
     console.error(chalk.red(error.message));
     return;
