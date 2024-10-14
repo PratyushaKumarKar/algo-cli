@@ -4,7 +4,8 @@
   "description": "CLI tool to generate testcases for a leetcode problem",
   "main": "index.js",
   "scripts": {
-    "test": "npm i nodemon"
+    "test": "npm i nodemon",
+    "dev" : "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -16,8 +17,7 @@
   "author": "kaishuro",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^2.0.5",
-    "puppeteer": "^5.3.1"
+    "nodemon": "^2.0.5"
   },
   "bugs": {
     "url": "https://github.com/PratyushaKumarKar/algo-cli/issues"
