@@ -4,7 +4,6 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
-const chalkAnimation = require('chalk-animation');
 const fss = require('fs-extra');
 const { runTestCases } = require('./execution');
 require('dotenv').config();
@@ -61,7 +60,6 @@ async function getLeetCodeProblemDetails() {
 
     storeAPIKeyInEnv(apiKey);
     
-    // Reload the environment variables after updating .env
     require('dotenv').config();
   }
 
@@ -158,7 +156,7 @@ async function fsFunc(jsonData, slug) {
           content: preprompt + JSON.stringify(jsonData, null, 2)
         }
       ],
-      temperature: 0
+      temperature: 0.6
     };
 
     const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', requestBody, {
