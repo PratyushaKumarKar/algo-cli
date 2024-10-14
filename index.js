@@ -7,7 +7,6 @@ const chalk = require('chalk');
 const chalkAnimation = require('chalk-animation');
 const fss = require('fs-extra');
 const { runTestCases } = require('./execution');
-// const runTestCases = require('')
 require('dotenv').config();
 
 
@@ -29,7 +28,7 @@ async function getLeetCodeProblemDetails() {
     const envPath = path.join(__dirname, '.env');
 
     if (!fs.existsSync(envPath)) {
-      // Create a new .env file if it doesn't exist
+      
       fs.writeFileSync(envPath, '');
     }
 
@@ -142,7 +141,7 @@ async function getLeetCodeProblemDetails() {
 
     // console.log(jsonData);
 
-    await fsFunc(jsonData, slug);
+    await fsFunc(jsonData, slug)
     await runTestCases(slug);
 
   } catch (error) {
@@ -154,7 +153,7 @@ async function fsFunc(jsonData, slug) {
   try {
     const preprompt = `
     You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Log the testCases array in the format:
-    [{input: ...,output:... },{input: ...,output:... },...] Don't Explain or write anything other than the Code in your response.And remove backticks because the code is directly getting placed in js file so make sure there's nothing other than the code
+    {{input: ...,output:... },{input: ...,output:... },...} Don't Explain or write anything other than the Code in your response.And remove backticks because the code is directly getting placed in js file so make sure there's nothing other than the code
     `;
 
     const requestBody = {
@@ -165,7 +164,7 @@ async function fsFunc(jsonData, slug) {
           content: preprompt + JSON.stringify(jsonData, null, 2)
         }
       ],
-      temperature: 0.7
+      temperature: 0
     };
 
     const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', requestBody, {
@@ -178,7 +177,7 @@ async function fsFunc(jsonData, slug) {
     if (response.data && response.data.choices && response.data.choices.length > 0) {
       const jsFileContent = response.data.choices[0].message.content;
     
-      const dirPath = path.join(__dirname, slug);
+      const dirPath = path.join(__dirname, 'problems/'+ slug);
       const filePath = path.join(dirPath, 'index.js');
     
       try {

@@ -4,8 +4,12 @@ const { exec } = require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
 
+// runTestCases("count-primes");
+
 async function runTestCases(problemSlug) {
-  const dirPath = path.join(__dirname, problemSlug);
+
+  console.log("asdasdasd")
+  const dirPath = path.join(__dirname, 'problems/'+ problemSlug);
   const filePath = path.join(dirPath, 'index.js');
 
   try {
@@ -23,6 +27,7 @@ async function runTestCases(problemSlug) {
     } else {
       console.log(`Test cases generated successfully.`);
       const testcasesPath = path.join(dirPath, 'testcases.json');
+
       await fs.outputFile(testcasesPath, stdout);
       console.log(`Test cases saved to ${testcasesPath}`);
     }
