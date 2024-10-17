@@ -1,54 +1,49 @@
 const axios = require('axios');
 
-// Function to extract the slug from the URL
+
 function extractSlugFromUrl(url) {
-  const urlParts = url.split('/');
-  return urlParts[urlParts.length - 2]; // The second-to-last part of the URL is the slug
+  const regex = /^https:\/\/leetcode.com\/problems\/([a-zA-Z0-9-]+)\//;
+  const match = url.match(regex);
+  const slug = match[1]
+  return slug;
 }
 
-// Function to clean and extract the full description from the content
 function extractFullDescription(content) {
   return content
-    .replace(/<[^>]*>/g, '') // Remove all HTML tags
-    .replace(/&nbsp;/g, ' ')  // Replace HTML space encoding
-    .replace(/\s+/g, ' ')     // Normalize multiple spaces
-    .trim();                  // Trim any leading or trailing spaces
+    .replace(/<[^>]*>/g, '') 
+    .replace(/&nbsp;/g, ' ')  
+    .replace(/\s+/g, ' ')     
+    .trim();                  
 }
 
-// Improved function to extract examples
-function extractExamples(content) {
-  // Match all examples based on "Example" keyword and extract both input/output
-  const exampleMatches = content.match(/<pre><code>(.*?)<\/code><\/pre>/gs);
-  let examples = [];
+// function extractExamples(content) {
+//   const exampleMatches = content.match(/<pre><code>(.*?)<\/code><\/pre>/gs);
+//   let examples = [];
 
-  if (exampleMatches) {
-    examples = exampleMatches.map((example) => 
-      example.replace(/<[^>]*>/g, '').trim() // Remove HTML tags and clean up
-    );
-  }
+//   if (exampleMatches) {
+//     examples = exampleMatches.map((example) => 
+//       example.replace(/<[^>]*>/g, '').trim() 
+//     );
+//   }
 
-  return examples;
-}
+//   return examples;
+// }
 
-// Function to extract data and convert it into a structured JSON format
+
 function extractData(problemData) {
   const description = extractFullDescription(problemData.content);
 
-  // Extract examples using the improved method
-  const examples = extractExamples(problemData.content);
+  // const examples = extractExamples(problemData.content);
 
-  // Structuring the JSON object (removed constraints)
   const jsonData = {
     title: problemData.title,
-    description: description,  // Full description, including constraints within
+    description: description,
   };
 
   return jsonData;
 }
 
-// Function to fetch problem details from LeetCode and output structured JSON
 async function getLeetCodeProblemDetails(url) {
-  // Extract the slug from the provided URL
   const slug = extractSlugFromUrl(url);
 
   const query = `
@@ -79,7 +74,7 @@ async function getLeetCodeProblemDetails(url) {
 
     const problemData = response.data.data.question;
 
-    // Extract the data and convert to JSON
+
     const jsonData = extractData(problemData);
 
     return jsonData;
@@ -90,5 +85,4 @@ async function getLeetCodeProblemDetails(url) {
   }
 }
 
-// Export the function 
 module.exports = { getLeetCodeProblemDetails };

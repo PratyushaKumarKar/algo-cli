@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config(); 
 
-// Function to send JSON to OpenRouter API and receive the JavaScript file
+
 async function generateTestCases(problemJson, slug) {
   const preprompt = `
   You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Return the testCases array as a JSON in the format:
@@ -11,7 +11,7 @@ async function generateTestCases(problemJson, slug) {
   `;
 
   const requestBody = {
-    model: "openai/gpt-4o-mini", //hotswap
+    model: "openai/gpt-4o-mini",
     messages: [
       {
         role: 'user',
@@ -29,7 +29,6 @@ async function generateTestCases(problemJson, slug) {
       }
     });
 
-    // Check if the response contains choices
     if (response.data && response.data.choices && response.data.choices.length > 0) {
       const jsFileContent = response.data.choices[0].message.content;
 
@@ -38,11 +37,10 @@ async function generateTestCases(problemJson, slug) {
         fs.mkdirSync(directoryPath, { recursive: true });
       }
 
-      // Save the JavaScript file in the created directory
       const filePath = path.join(directoryPath, `${slug}.js`);
       fs.writeFileSync(filePath, jsFileContent);
 
-      console.log(`JavaScript file saved successfully at: ${filePath}`);
+      // console.log(`JavaScript file saved successfully at: ${filePath}`);
     } else {
       console.error('No choices found in the response:', response.data);
     }

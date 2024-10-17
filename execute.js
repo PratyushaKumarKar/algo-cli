@@ -2,35 +2,32 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Function to execute a JavaScript file and capture its output
 function executeJSFile(filePath) {
   const fileName = path.basename(filePath, '.js'); 
 
   return new Promise((resolve, reject) => {
-    // Increase the maxBuffer size to handle large outputs
-    exec(`node ${filePath}`, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+    exec(`node ${filePath}`, { maxBuffer: 1024 * 1024 * 100 }, (error, stdout, stderr) => {
       if (error) {
-        console.error(`Error executing file: ${error.message}`);
-        return reject(error);
+        console.error(`Error executing file ${filePath}: ${error.message}`);
+        return resolve(`Error in file ${filePath}: ${error.message}`);
       }
 
       if (stderr) {
-        console.error(`Error output: ${stderr}`);
-        return reject(stderr);
+        console.error(`Error output in file ${filePath}: ${stderr}`);
+        return resolve(`Error output in file ${filePath}: ${stderr}`);
       }
 
-      // Parse the output and save it to a .json file
       try {
         const outputData = JSON.parse(stdout);
         const outputFilePath = path.join(path.dirname(filePath), `${fileName}.json`);
 
         fs.writeFileSync(outputFilePath, JSON.stringify(outputData, null, 2), 'utf8');
-        console.log(`Output saved to: ${outputFilePath}`);
+        // console.log(`Output saved to: ${outputFilePath}`);
 
         resolve(outputFilePath); 
       } catch (parseError) {
-        console.error(`Failed to parse output as JSON: ${parseError.message}`);
-        reject(parseError);
+        console.error(`Failed to parse output as JSON for file ${filePath}: ${parseError.message}`);
+        resolve(`Failed to parse output as JSON for file ${filePath}: ${parseError.message}`);
       }
     });
   });
