@@ -6,9 +6,7 @@ require('dotenv').config();
 
 async function generateTestCases(problemJson, slug) {
   const preprompt = `
-  You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Return the testCases array as a JSON in the format:
-    {{input: ...,output:... },{input: ...,output:... },...} Don't Explain or write anything other than the Code in your response.And remove backticks because the code is directly getting placed in js file so make sure there's nothing other than the code
-  `;
+  Given a JSON object describing a LeetCode problem, generate a JavaScript file that creates test cases for the problem. The code should generate no more than 1000 test cases, with the actual number being the minimum of 1000 and the maximum number of unique test cases possible given the problem constraints. Ensure the total size of the generated JSON is less than 1MB. Prioritize test case variety over quantity, covering edge cases and a wide range of inputs within the problem's constraints. Each test case should be an object with 'input' and 'output' properties. Store the test cases in an array called testCases and return it as a JSON string in the format: [{"input": ..., "output": ...}, ...]. Implement functions to generate inputs based on the problem's constraints and calculate the correct output for each input. Include logic to stop generating test cases if either the 1000 case limit or the 1MB size limit is reached. The response should contain only the JavaScript code, without any explanations, comments, or backticks. The code will be directly placed in a .js file, so ensure it follows these guidelines and produces a manageable set of diverse test cases within the specified limits.`;
 
   const requestBody = {
     model: "openai/gpt-4o-mini",
