@@ -1,51 +1,68 @@
 const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
-const cheerio = require('cheerio');
 const inquirer = require('inquirer');
-const chalk = require('chalk');
-const fss = require('fs-extra');
-const { runTestCases } = require('./execution');
 require('dotenv').config();
+const { getLeetCodeProblemDetails } = require('./scrapeLeetcode');
+const { generateTestCases } = require('./generateTestCases');
+const path = require('path');
+const { executeJSFile } = require('./execute');
+const { splitJsonToInputOutput } = require('./splitJson');
+const xlsx = require('xlsx');
 
+function checkOrCreateEnv() {
+  const envPath = path.join(__dirname, '.env');
 
-function extractSlugFromUrl(url) {
-  if (!url) {
-    throw new Error("URL is undefined or empty.");
+  if (!fs.existsSync(envPath)) {
+    fs.writeFileSync(envPath, '');
   }
-  const urlParts = url.split('/');
 
-  if (urlParts.length < 3) {
-    throw new Error("Invalid URL format. Please provide a correct LeetCode problem URL.");
+  require('dotenv').config();
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return false;
   }
-  return urlParts[urlParts.length - 3];
+
+  return true;
 }
 
-async function getLeetCodeProblemDetails() {
+function storeAPIKeyInEnv(apiKey) {
+  const envPath = path.join(__dirname, '.env');
+  const envContent = `ANTHROPIC_API_KEY=${apiKey}\n`;
+  fs.appendFileSync(envPath, envContent);
+  console.log('API key has been saved in .env file.');
+}
 
-  function checkOrCreateEnv() {
-    const envPath = path.join(__dirname, '.env');
 
-    if (!fs.existsSync(envPath)) {
-      
-      fs.writeFileSync(envPath, '');
+async function processLink(link) {
+  try {
+    const problemData = await getLeetCodeProblemDetails(link);
+
+    if (problemData) {
+      const slug = problemData.title.toLowerCase().replace(/\s+/g, '-');
+      await generateTestCases(problemData, slug);
+
+      const filePath = path.join(__dirname, 'problems', `${slug}`, `${slug}.js`);
+      const jsonFilePath = await executeJSFile(filePath);
+
+      if (fs.existsSync(jsonFilePath)) {
+        splitJsonToInputOutput(jsonFilePath);
+      } else {
+        console.log('JSON file not found after executing the JavaScript file.');
+      }
+    } else {
+      console.log(`Failed to fetch data for link: ${link}`);
     }
-
-    require('dotenv').config();
-  
-    if (!process.env.OPENROUTER_API_KEY) {
-      return false; 
-    }
-  
-    return true; 
-  };
-
-  function storeAPIKeyInEnv(apiKey) {
-    const envPath = path.join(__dirname, '.env');
-    const envContent = `OPENROUTER_API_KEY=${apiKey}\n`;
-    fs.appendFileSync(envPath, envContent);
+  } catch (error) {
+    console.error(`Error processing link: ${link}`, error);
   }
+}
 
+async function processLinks(links) {
+  for (const link of links) {
+    await processLink(link);
+  }
+}
+
+async function main() {
   const apiKeyExists = checkOrCreateEnv();
 
   if (!apiKeyExists) {
@@ -53,137 +70,26 @@ async function getLeetCodeProblemDetails() {
       {
         type: 'input',
         name: 'apiKey',
-        message: 'Enter your OPENROUTER_API_KEY:',
+        message: 'Enter your ANTHROPIC_API_KEY:',
         validate: (input) => input.trim() !== '' || 'API key cannot be empty!',
       },
     ]);
 
     storeAPIKeyInEnv(apiKey);
-    
     require('dotenv').config();
   }
 
+  const filePath = path.join(__dirname, 'leetcode_problems.xlsx');
+  const workbook = xlsx.readFile(filePath);
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(sheet);
+  const links = jsonData.map(row => row["Link"]);
 
-  const { leetCodeUrl } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'leetCodeUrl',
-      message:'Enter the LeetCode problem URL:',
-      validate: (input) =>
-        /^https:\/\/leetcode.com\/problems\/[a-zA-Z0-9-]+\//.test(input) ||
-        'Please enter a valid LeetCode problem URL!',
-    },
-  ]);
-
-  let slug;
-
-  try {
-    slug = extractSlugFromUrl(leetCodeUrl);
-  } catch (error) {
-    console.error(chalk.red(error.message));
-    return;
-  }
-
-  const query = `
-    query getQuestionDetail($titleSlug: String!) {
-      question(titleSlug: $titleSlug) {
-        title
-        content
-        exampleTestcases
-      }
-    }
-  `;
-
-  const variables = {
-    titleSlug: slug,
-  };
-
-  try {
-    const response = await axios.post('https://leetcode.com/graphql', {
-      query: query,
-      variables: variables
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Referer': `https://leetcode.com/problems/${slug}/`,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
-      }
-    });
-
-    const problemData = response.data.data.question;
-
-    const $ = cheerio.load(problemData.content);
-
-    const description = problemData.content
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const constraintValues = $('ul').text().trim();
-
-    // console.log('Title:', problemData.title);
-    // console.log('Description:', description);
-    // console.log('Example Testcases:', problemData.exampleTestcases);
-    // console.log('Constraints:', constraintValues);
-
-    const jsonData = {
-      title: problemData.title,
-      description: description,
-    };
-
-    // console.log(jsonData);
-
-    await fsFunc(jsonData, slug)
-    await runTestCases(slug);
-
-  } catch (error) {
-    console.error('Error fetching problem details:', error.message);
-  }
+  console.log('Starting to process LeetCode links...');
+  
+  await processLinks(links);
+  console.log('All LeetCode problems processed successfully.');
 }
 
-async function fsFunc(jsonData, slug) {
-  try {
-    const preprompt = `
-    You are given a JSON object describing a LeetCode problem.Generate a JavaScript file that creates 1000 test cases for the problem.Each test case should be an object with an input (matching the problem’s input format) and the correct output (based on the problem’s solution).Store the test cases in an array called testCases.Ensure the inputs cover a wide range within the problem’s constraints.Return the testCases array as a JSON in the format:
-    {{input: ...,output:... },{input: ...,output:... },...} Don't Explain or write anything other than the Code in your response.And remove backticks because the code is directly getting placed in js file so make sure there's nothing other than the code`;
-
-    const requestBody = {
-      model: "openai/gpt-4o-mini",
-      messages: [
-        {
-          role: 'user',
-          content: preprompt + JSON.stringify(jsonData, null, 2)
-        }
-      ],
-      temperature: 0.6
-    };
-
-    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', requestBody, {
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.data && response.data.choices && response.data.choices.length > 0) {
-      const jsFileContent = response.data.choices[0].message.content;
-    
-      const dirPath = path.join(__dirname, 'problems/'+ slug);
-      const filePath = path.join(dirPath, 'index.js');
-    
-      try {
-        await fss.ensureDir(dirPath);
-    
-        await fss.outputFile(filePath, jsFileContent);
-      } catch (err) {
-        console.error('Error creating folder or writing file:', err);
-      }
-    }
-  } catch (error) {
-    console.error('Error generating test cases:', error.response ? error.response.data : error.message);
-  }
-};
-
-getLeetCodeProblemDetails();
-
+main();
