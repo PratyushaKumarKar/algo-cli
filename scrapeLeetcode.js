@@ -2,10 +2,12 @@ const axios = require('axios');
 
 
 function extractSlugFromUrl(url) {
-  const regex = /^https:\/\/leetcode.com\/problems\/([a-zA-Z0-9-]+)\//;
-  const match = url.match(regex);
-  const slug = match[1]
-  return slug;
+  if (!url || typeof url !== 'string') {
+    console.error('Invalid URL provided to extractSlugFromUrl:', url);
+    return null;
+  }
+  const match = url.match(/\/problems\/([^/]+)/);
+  return match ? match[1] : null;
 }
 
 function extractFullDescription(content) {

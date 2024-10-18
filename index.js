@@ -79,12 +79,24 @@ async function main() {
     require('dotenv').config();
   }
 
-  const filePath = path.join(__dirname, 'leetcode_problems.xlsx');
-  const workbook = xlsx.readFile(filePath);
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  const jsonData = xlsx.utils.sheet_to_json(sheet);
-  const links = jsonData.map(row => row["Link"]);
+  const path = require('path');
+const xlsx = require('xlsx');
+
+const filePath = path.join(__dirname, 'leetcode_problems.xlsx');
+const workbook = xlsx.readFile(filePath);
+const sheetName = workbook.SheetNames[0];
+const sheet = workbook.Sheets[sheetName];
+
+// Convert the sheet to JSON
+const jsonData = xlsx.utils.sheet_to_json(sheet);
+
+// Extract URLs from the "LeetCode Problems" column (second column)
+const links = jsonData.map(row => row["LeetCode Link"]);
+
+// Filter out any undefined or empty values
+const validLinks = links.filter(link => link && link.trim() !== '');
+
+console.log('Extracted links:', validLinks);
 
   console.log('Starting to process LeetCode links...');
   

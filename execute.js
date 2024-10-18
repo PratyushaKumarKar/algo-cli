@@ -22,7 +22,7 @@ function executeJSFile(filePath) {
         const outputFilePath = path.join(path.dirname(filePath), `${fileName}.json`);
 
         fs.writeFileSync(outputFilePath, JSON.stringify(outputData, null, 2), 'utf8');
-        console.log(`Output saved to: ${outputFilePath}`);
+        // console.log(`Output saved to: ${outputFilePath}`);
 
         resolve(outputFilePath); 
       } catch (parseError) {

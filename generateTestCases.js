@@ -28,7 +28,7 @@ async function generateTestCases(problemJson, slug) {
     if (response && response.data && response.data.content && response.data.content.length > 0) {
       const jsFileContent = response.data.content[0].text;
 
-      console.log(jsFileContent + "\n this is jsFileContent")
+      // console.log(jsFileContent + "\n this is jsFileContent")
 
       const directoryPath = path.join(__dirname, 'problems', slug);
       if (!fs.existsSync(directoryPath)) {
@@ -38,7 +38,7 @@ async function generateTestCases(problemJson, slug) {
       const filePath = path.join(directoryPath, `${slug}.js`);
       fs.writeFileSync(filePath, jsFileContent);
 
-      console.log(`JavaScript file saved successfully at: ${filePath}`);
+      // console.log(`JavaScript file saved successfully at: ${filePath}`);
     } else {
       console.error('No valid choices found in the response:', response.data);
     }
