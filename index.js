@@ -46,10 +46,10 @@ async function processLink(link) {
       if (fs.existsSync(jsonFilePath)) {
         splitJsonToInputOutput(jsonFilePath);
       } else {
-        console.log('JSON file not found after executing the JavaScript file.');
+        console.error(`JSON file not found after executing the ${slug} JavaScript file.`);
       }
     } else {
-      console.log(`Failed to fetch data for link: ${link}`);
+      console.error(`Failed to fetch data for link: ${link}`);
     }
   } catch (error) {
     console.error(`Error processing link: ${link}`, error);
@@ -87,18 +87,14 @@ const workbook = xlsx.readFile(filePath);
 const sheetName = workbook.SheetNames[0];
 const sheet = workbook.Sheets[sheetName];
 
-// Convert the sheet to JSON
 const jsonData = xlsx.utils.sheet_to_json(sheet);
 
-// Extract URLs from the "LeetCode Problems" column (second column)
 const links = jsonData.map(row => row["LeetCode Link"]);
-
-// Filter out any undefined or empty values
 const validLinks = links.filter(link => link && link.trim() !== '');
 
-console.log('Extracted links:', validLinks);
+// console.log('Extracted links:', validLinks);
 
-  console.log('Starting to process LeetCode links...');
+  // console.log('Starting to process LeetCode links...');
   
   await processLinks(links);
   console.log('All LeetCode problems processed successfully.');
