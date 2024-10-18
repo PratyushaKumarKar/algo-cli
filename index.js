@@ -17,7 +17,7 @@ function checkOrCreateEnv() {
 
   require('dotenv').config();
 
-  if (!process.env.OPENROUTER_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return false;
   }
 
@@ -26,7 +26,7 @@ function checkOrCreateEnv() {
 
 function storeAPIKeyInEnv(apiKey) {
   const envPath = path.join(__dirname, '.env');
-  const envContent = `OPENROUTER_API_KEY=${apiKey}\n`;
+  const envContent = `ANTHROPIC_API_KEY=${apiKey}\n`;
   fs.appendFileSync(envPath, envContent);
   console.log('API key has been saved in .env file.');
 }
@@ -39,17 +39,14 @@ async function processLink(link) {
     if (problemData) {
       const slug = problemData.title.toLowerCase().replace(/\s+/g, '-');
       await generateTestCases(problemData, slug);
-      // console.log(`Created JS file for ${slug} successfully.`);
 
       const filePath = path.join(__dirname, 'problems', `${slug}`, `${slug}.js`);
       const jsonFilePath = await executeJSFile(filePath);
-      // console.log('Created JSON successfully.');
 
       if (fs.existsSync(jsonFilePath)) {
         splitJsonToInputOutput(jsonFilePath);
-        // console.log('Split JSON into input/output successfully.');
       } else {
-        // console.log('JSON file not found after executing the JavaScript file.');
+        console.log('JSON file not found after executing the JavaScript file.');
       }
     } else {
       console.log(`Failed to fetch data for link: ${link}`);
@@ -73,7 +70,7 @@ async function main() {
       {
         type: 'input',
         name: 'apiKey',
-        message: 'Enter your OPENROUTER_API_KEY:',
+        message: 'Enter your ANTHROPIC_API_KEY:',
         validate: (input) => input.trim() !== '' || 'API key cannot be empty!',
       },
     ]);
@@ -89,7 +86,7 @@ async function main() {
   const jsonData = xlsx.utils.sheet_to_json(sheet);
   const links = jsonData.map(row => row["Link"]);
 
-  // console.log('Starting to process LeetCode links...');
+  console.log('Starting to process LeetCode links...');
   
   await processLinks(links);
   console.log('All LeetCode problems processed successfully.');

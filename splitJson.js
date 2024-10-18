@@ -28,6 +28,6 @@ function splitJsonToInputOutput(jsonFilePath) {
     fs.writeFileSync(outputFilePath, outputContent, 'utf8');
   });
 
-  // console.log(`Successfully split ${testCases.length} test cases into input and output directories.`);
+  console.log(`Successfully split ${testCases.length} test cases into input and output directories.`);
 }
 module.exports = { splitJsonToInputOutput } ;

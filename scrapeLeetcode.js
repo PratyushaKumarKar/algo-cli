@@ -16,24 +16,8 @@ function extractFullDescription(content) {
     .trim();                  
 }
 
-// function extractExamples(content) {
-//   const exampleMatches = content.match(/<pre><code>(.*?)<\/code><\/pre>/gs);
-//   let examples = [];
-
-//   if (exampleMatches) {
-//     examples = exampleMatches.map((example) => 
-//       example.replace(/<[^>]*>/g, '').trim() 
-//     );
-//   }
-
-//   return examples;
-// }
-
-
 function extractData(problemData) {
   const description = extractFullDescription(problemData.content);
-
-  // const examples = extractExamples(problemData.content);
 
   const jsonData = {
     title: problemData.title,
@@ -74,9 +58,7 @@ async function getLeetCodeProblemDetails(url) {
 
     const problemData = response.data.data.question;
 
-
     const jsonData = extractData(problemData);
-
     return jsonData;
 
   } catch (error) {
